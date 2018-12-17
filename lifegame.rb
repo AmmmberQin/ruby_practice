@@ -1,16 +1,20 @@
 class Game
-    WIDTH = 5
-    HEIGHT = 5
-    SEEDS = [[0,2],[1,0],[1,2],[2,1],[2,2]]
+    def initialize(width, height, seeds)
+        @width = width
+        @height = height
+        @seeds = seeds
+    end
 
-    def initialize
-        @grid = Grid.new(WIDTH, HEIGHT)
-        @grid.plant_seeds(SEEDS)
+    def reset
+        @grid = Grid.new(@width, @height, @seeds)
     end
 
     def start
-        while not @grid.lifeless?
+        reset
+        until @grid.lifeless?
             puts @grid
+            puts
+
             next_grid = update()
             if(@grid == next_grid)
                 break
@@ -46,23 +50,13 @@ class Game
 end
 
 class Grid
-    def initialize(width, height)
-        @width = width
-        @height = height
-        @grid = setup_grid
+    def initialize(width, height, seeds=[])
+        @cells = Array.new(width * height).map{ Cell.new}
+        @grid = @cells.each_slice(width).to_a
+
+        seeds.each{|coordinate| @grid.dig(*coordinate).live!}
     end
 
-    def setup_grid
-        grid = []
-        @width.times do |row|
-            cells = []
-            @height.times do |column|
-                cells << Cell.new(false)
-            end
-            grid << cells
-        end
-        return grid
-    end
 
     def plant_seeds(seeds)
         seeds.each do |x,y|
@@ -79,19 +73,11 @@ class Grid
     end
 
     def lifeless?
-        not @grid.any?{|row| row.any?{|cell| cell.alive?}}
+        @cell.none?(&:going_to_change?)
     end
 
     def to_s
-        rows = []
-        0.upto(@width-1) do |row|
-            columns = []
-            0.upto(@height-1) do |column|
-                columns << @grid[row][column].to_s
-            end
-            rows << columns.join("")
-        end
-        return rows.join("\n") + "\n\n"
+        @grid.map{|row| row.map(&:to_s).join}.join("\n")
     end
 
     def ==(other)
@@ -108,12 +94,18 @@ class Grid
 end
 
 class Cell
-    def initialize(alive)
-        @alive = alive
+    def initialize(alive=false)
+        @alive = !!alive
     end
 
-    def change_state(state)
-        @alive = state
+    def alive_next_cycle?
+        alive_neighbors = neighbor.count(&:alive?)
+
+        if alive?
+
+
+    def going_to_change?
+        alive? != alive_next_cycle?
     end
 
     def alive?
@@ -125,14 +117,14 @@ class Cell
     end
 
     def to_s
-        if @alive
-            return "x"
-        else
-            return "."
-        end
+        alive?? 'x' : '.'
     end
 
 end
+
+width = 5
+height = 5
+seeds = [[0,2],[1,0],[1,2],[2,1],[2,2]]
 
 game = Game.new()
 game.start()
