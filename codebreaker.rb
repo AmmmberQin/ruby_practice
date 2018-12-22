@@ -1,6 +1,3 @@
-puts "Code Breaker will encrypt or decrypt a file of your choice"
-puts ""
-
 class CodeBreaker
 	COMMANDS = ['e', 'd']
 	def initialize
@@ -120,6 +117,9 @@ class Caesar
 	end
 
 end
+
+puts "Code Breaker will encrypt or decrypt a file of your choice"
+puts ""
 
 codebreaker = CodeBreaker.new
 

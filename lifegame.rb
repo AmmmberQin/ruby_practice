@@ -47,7 +47,7 @@ class Cell
   end
 
   def alive_next_cycle?
-    puts neighbours
+    
     alive_neighbours = neighbours.count(&:alive?)
 
     if alive?

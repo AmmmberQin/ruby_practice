@@ -1,9 +1,3 @@
-puts "Welcome to the Last Straw Game"
-puts "IN each round, players will draw straws of two different lengths"
-puts "The PLayer who pick the short straw will be eliminated and a new round will begin"
-
-PLAYERS = %w(anne bert chris donna ernie franz garfield holden ivy jose)
-
 class Game
 	def initialize(player_names)
 		@players = []
@@ -108,10 +102,15 @@ class Straw
 	end
 end
 
+puts "Welcome to the Last Straw Game"
+puts "IN each round, players will draw straws of two different lengths"
+puts "The PLayer who pick the short straw will be eliminated and a new round will begin"
+
+PLAYERS = %w(anne bert chris donna ernie franz garfield holden ivy jose)
 
 game = Game.new(PLAYERS)
 
-while !game.done? do 
+until game.done?
 	game.show_round_number
 	game.play_round
 	game.show_results

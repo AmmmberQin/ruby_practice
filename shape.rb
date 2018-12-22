@@ -3,9 +3,7 @@
 # simple print shape
 # how to play, just run `ruby shape.rb` on command
 
-
-
-class Game
+class Shape
     def initialize(shape_size, outside_letter, inside_letter)
         @height = shape_size
         @width = shape_size * 2
@@ -13,7 +11,7 @@ class Game
         @inside_letter = inside_letter
     end
 
-    def start
+    def draw
         triangle
         rectangle
     end
@@ -31,8 +29,6 @@ class Game
         end
     end
 
-    
-
     def triangle
         1.upto(@height) do |row|
             print ' ' * (@height - row)
@@ -49,21 +45,31 @@ class Game
     end
 end
 
-puts "Welcome to Shapes"
-print "How big do you want your shape? "
-shape_size = gets.to_i
-print "Outside letter: "
-outside_letter = gets
-outside_letter = outside_letter.chomp
-print "Inside letter: "
-inside_letter = gets
-inside_letter = inside_letter.chomp
-puts "About to draw a shape #{shape_size} big"
-puts "using #{outside_letter} for the edge"
-puts "and #{inside_letter} for the inside"
+class Game
 
-game = Game.new(shape_size, outside_letter, inside_letter)
-game.start
+    def play
+        puts "Welcome to Shapes"
+        print "How big do you want your shape? "
+        shape_size = gets.to_i
+        print "Outside letter: "
+        outside_letter = gets
+        outside_letter = outside_letter.chomp
+        print "Inside letter: "
+        inside_letter = gets
+        inside_letter = inside_letter.chomp
+        puts "About to draw a shape #{shape_size} big"
+        puts "using #{outside_letter} for the edge"
+        puts "and #{inside_letter} for the inside"
+
+        shape = Shape.new(shape_size, outside_letter, inside_letter)
+        shape.draw
+    end
+end
+
+game = Game.new
+game.play
+
+
 
 
 
