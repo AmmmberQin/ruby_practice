@@ -7,14 +7,14 @@ class Life < Gosu::Window
     def initialize(generations, sim)
         super(800,800)
         self.caption = "Game of Life"
-        @ game = Game.new(self, generations, sim)
+        @game = Game.new(self, generations, sim)
 
     def update
-        @ game.update
+        @game.update
     end
 
     def draw
-        @ game.draw
+        @game.draw
     end
 end
 

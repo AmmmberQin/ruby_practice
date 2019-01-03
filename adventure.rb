@@ -84,7 +84,6 @@ class Dungeon
         end
         return total
     end
-
 end
 
 class Game
@@ -113,10 +112,11 @@ class Game
             end
             puts ""
         end
-
         game_end
     end
 
+    private
+    
     def player_action
         print "What do you do? (#{actions.join(', ')}): "
         play_action = gets.chomp

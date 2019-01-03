@@ -12,23 +12,26 @@ class Cell
                      [:east, :west].freeze, 
                      [:north_east, :south_west].freeze, 
                      [:north_west, :south_east].freeze].freeze
+  EMPTY = "."
   attr_accessor(*NEIGHBOUR_DIRECTIONS)
   def initialize
-    @cell = "."
+    @cell = EMPTY
   end
   
   def empty?
-    @cell == "."
+    @cell == EMPTY
   end
 
-  def place(piece)
-    if empty?
+  def place?(piece)
+    if empty? and valid_piece?(piece)
       @cell = piece
+      return true
     end
+    return false
   end
 
   def win?
-    neighbours.select{|x| x>=5}.length > 0
+    neighbours.compact.select{|x| x>=4}.length > 0
   end
 
   def [](direction)
@@ -42,9 +45,10 @@ class Cell
   end
 
   def neighbours
-    PAIR_DIRECTIONS.map{ |dir_a, dir_b|
-      self[dir_a].find_index{|neighbour| neighbour.to_s != self.to_s} + 
-      self[dir_b].find_index{|neighbour| neighbour.to_s != self.to_s}
+    PAIR_DIRECTIONS.map{ |directions| 
+      directions.map{|direction|
+        self[direction].find_index{|neighbour| neighbour.to_s != self.to_s}
+      }.compact.inject(:+)
     }
   end
 
@@ -64,30 +68,44 @@ class Cell
     end
   end
 
+  def valid_piece?(piece)
+    piece != EMPTY
+  end
+
 end
 
 class Grid
-  def initialize(width, height)
-    @user_sign = ["*", "+"]
-    @cells = Array.new(width * height).map { Cell.new }
+  attr_reader :gameover, :draw
+  def initialize(width)
+    @cells = Array.new(width * width).map { Cell.new }
     @grid = @cells.each_slice(width).to_a
     @gameover = false
-
+    @draw = false
     @width = width
-    @height = height
-
     assign_cell_neighbours
   end
 
-  def gameover?
-    @gameover
+  def update?(move, piece)
+    x, y = move
+    if x.negative? || x >= @width || y.negative? || y >= @width
+      return false
+    end
+    cell = @grid.dig(x,y)
+    if not cell.place?(piece)
+      return false
+    end
+
+    if not full?
+      @gameover = cell.win?
+    else
+      @gameover = true
+      @draw = true
+    end
+    return true
   end
 
-  def update(move, user_index)
-    x, y = move
-    cell = @grid.dig(x,y)
-    cell.place(@user_sign[user_index])
-    @gameover = cell.win?
+  def full?
+    @cells.none?{|cell| cell.empty?}
   end
 
   def to_s
@@ -111,7 +129,7 @@ class Grid
             break if neighbour_row_index.negative? ||
                      neighbour_column_index.negative? ||
                      neighbour_row_index >= @width ||
-                     neighbour_column_index >= @height
+                     neighbour_column_index >= @width
             neighbours << @grid.dig(neighbour_row_index, neighbour_column_index)
           end
           cell[dir] = neighbours
@@ -122,35 +140,51 @@ class Grid
 end
 
 class Game
-  def initialize(width=15, height=15)
+  def initialize(width=15)
     @width = width
-    @height = height
     @users = ["A", "B"]
+    @user_piece = {"A"=>"+", "B"=>"*"}
     @user_index = 0
-    @user = @users[@user_index]
   end
 
   def reset
-    @grid = Grid.new(@width, @height)
+    @grid = Grid.new(@width)
   end
 
   def start
     reset
     puts @grid
-    until @grid.gameover?
-      print "Now for user<#{@user}>, Enter your move:"
-      move = gets.chomp.split.map(&:to_i)
-      @grid.update(move, @user_index)
-      switch_user
-      puts @grid
+    until @grid.gameover
+      user = @users[@user_index]
+      print "Now for user<#{user}>, Enter your move(split by space)[0-#{@width-1}]:"
+      begin
+        move = gets.chomp.split.map(&:to_i)
+        if not @grid.update?(move, @user_piece[user])
+          puts "Invalid move!!!"
+        else
+          switch_user
+          puts @grid
+        end
+      rescue
+        puts "Invalid move!!!"
+      end
     end
+    show_result
   end
 
   def switch_user
     @user_index = (@user_index + 1) % @users.length
-    @user = @users[@user_index]
+  end
+
+  def show_result
+    if not @grid.draw
+      switch_user
+      print "Game Over the Winner is <#{@users[@user_index]}>"
+    else
+      print "Game Over Draw"
+    end
   end
 end
 
-game = Game.new()
+game = Game.new(2)
 game.start
